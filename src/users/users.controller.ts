@@ -27,7 +27,7 @@ export class UsersController {
       "data": { description: 'User registered successfully' }
   */
   @Post('register')
-  @ApiResponse({ status: 200, type: SingleResponseDto })
+  @ApiResponse({ status: 201, type: SingleResponseDto })
   async register(
     @Body(ValidationPipe) credentials: CreateUserDto,
   ): Promise<SingleResponseDto> {
