@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TestLoginController } from './test-login/test-login.controller';
 import { User } from './users/entities/user.entity';
+import { ProjectsModule } from './projects/projects.module';
+import { Project } from './projects/entities/project.entity';
 
 @Module({
   imports: [
@@ -22,12 +24,14 @@ import { User } from './users/entities/user.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User],
+        entities: [User, Project],
         synchronize: true,
+        logging: ['query', 'error', 'schema'],
       }),
       inject: [ConfigService],
     }),
     UsersModule,
+    ProjectsModule,
   ],
   controllers: [AppController, TestLoginController],
   providers: [AppService],
