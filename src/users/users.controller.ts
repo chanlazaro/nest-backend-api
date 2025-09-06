@@ -40,6 +40,8 @@ export class UsersController {
     URL: /users
     Returns:
       "data": [ { id, username, email }, ... ]
+    Note:
+      - Uses ClassSerializerInterceptor to exclude sensitive fields like password
    */
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
@@ -51,6 +53,15 @@ export class UsersController {
     return new SingleResponseDto(users);
   }
 
+  /* Get User by ID
+    URL: /users/get_user?id=1
+    Query Parameter:
+      id: number (User ID)
+    Returns:
+      "data": [ { id, username, email }, ... ]
+    Note:
+      - Uses ClassSerializerInterceptor to exclude sensitive fields like password
+   */
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @Get('get_user')
@@ -62,6 +73,15 @@ export class UsersController {
     return new SingleResponseDto(user);
   }
 
+  /* Update User
+    URL: /users/update_user
+    Query Parameter:
+      username, password, new_password, email
+    Returns:
+      "data": [ { id, username, email }, ... ]
+    Note:
+      - Uses ClassSerializerInterceptor to exclude sensitive fields like password
+   */
   @Patch('update_user')
   @ApiResponse({ status: 200, type: SingleResponseDto })
   async updateUser(@Body() updateUserDto: UpdateUserDto) {

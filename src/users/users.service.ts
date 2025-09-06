@@ -12,13 +12,6 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  /* User Registration
-    URL: /users/register
-    Parameter:
-      credentials: username, email, password
-    Returns:
-      "data": { description: 'User registered successfully' }
-  */
   async register(credentials: CreateUserDto) {
     //find if user exists
     const userExists = await this.userRepository.findOne({

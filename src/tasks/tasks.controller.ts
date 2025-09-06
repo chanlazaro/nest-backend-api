@@ -17,6 +17,14 @@ import { SingleResponseDto } from 'src/single-response.dto';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
+  /* Create task
+    URL: /tasks/create
+    Method: POST
+    Parameter:
+      createTaskDto: project_id, title, status, contents
+    Returns:
+      "data": { description: 'Project created successfully' }
+  */
   @Post('create')
   @ApiResponse({ status: 201, type: SingleResponseDto })
   async create(
@@ -27,25 +35,45 @@ export class TasksController {
     return new SingleResponseDto(task);
   }
 
+  /* Task List
+    URL: /tasks
+    Method: GET
+    Returns:
+      "data": { / task list with all fields / }
+  */
   @Get()
   @ApiResponse({ status: 200, type: SingleResponseDto })
-  async projectList(): Promise<SingleResponseDto> {
+  async taskList(): Promise<SingleResponseDto> {
     const tasks = await this.tasksService.findAll();
 
     // Format the data as { data: [...] }
     return new SingleResponseDto(tasks);
   }
 
+  /* View a task
+    URL: /tasks/get_task?id=1
+    Method: GET
+    Returns:
+      "data": { / task with all fields / }
+  */
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @Get('get_task')
   async getTask(@Query('id') id: number) {
-    // Fetch user by ID. Uses +id to convert string to number
-    const user = await this.tasksService.findOne(+id);
+    // Fetch task by ID. Uses +id to convert string to number
+    const task = await this.tasksService.findOne(+id);
 
     // Format the data as { data: [...] }
-    return new SingleResponseDto(user);
+    return new SingleResponseDto(task);
   }
 
+  /* Update task
+    URL: /tasks/update_task
+    Method: PATCH
+    Parameter:
+      updateTaskDto: id, title, status, contents
+    Returns:
+      "data": { / task with some fields / }
+  */
   @Patch('update_task')
   @ApiResponse({ status: 200, type: SingleResponseDto })
   async updateProject(@Body() updateTaskDto: UpdateTaskDto) {

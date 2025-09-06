@@ -1,8 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Project } from 'src/projects/entities/project.entity';
-import { User } from 'src/users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
@@ -11,8 +10,6 @@ import { Task } from './entities/task.entity';
 export class TasksService {
   constructor(
     @InjectRepository(Project) private projectRepository: Repository<Project>,
-
-    @InjectRepository(User) private userRepository: Repository<User>,
 
     @InjectRepository(Task) private taskRepository: Repository<Task>,
   ) {}
@@ -60,8 +57,6 @@ export class TasksService {
   }
 
   async update(updateTaskDto: UpdateTaskDto) {
-    Logger.debug('Update DTO received: ' + JSON.stringify(updateTaskDto));
-
     // Find task by id
     const task = await this.taskRepository.findOne({
       where: { id: updateTaskDto.id },

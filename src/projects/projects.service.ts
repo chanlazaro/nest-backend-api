@@ -25,6 +25,7 @@ export class ProjectsService {
       return 'User does not exist';
     }
     Logger.log(`id: ` + userExists.id + ` title: ` + createProjectDto.title);
+
     //find if project exists for the user using it's id
     const projectExists = await this.projectRepository.findOne({
       select: ['user_id', 'title'],
@@ -53,7 +54,7 @@ export class ProjectsService {
   }
 
   findAll() {
-    return this.projectRepository.find(); // Returns all users
+    return this.projectRepository.find(); // Returns all projects
   }
 
   async findOne(id: number) {
@@ -65,8 +66,7 @@ export class ProjectsService {
   }
 
   async update(updateProjectDto: UpdateProjectDto) {
-    Logger.debug('Update DTO received: ' + JSON.stringify(updateProjectDto));
-    // Find user by username and email
+    // Find user by username
     const user = await this.userRepository.findOne({
       select: ['id', 'username'],
       where: { username: updateProjectDto.user_id },
@@ -75,9 +75,8 @@ export class ProjectsService {
     if (!user) {
       return 'User not found';
     }
-    Logger.debug('User found: ' + user.username + ' with id: ' + user.id);
 
-    // Find project by id
+    // Find project by user id and project title
     const project = await this.projectRepository.findOne({
       where: { user_id: user.id, title: updateProjectDto.title },
     });
@@ -86,14 +85,6 @@ export class ProjectsService {
     if (!project) {
       return 'Project not found';
     }
-    Logger.debug(
-      'Project found: ' +
-        project.title +
-        ' with id: ' +
-        project.id +
-        ` for user ` +
-        project.user_id,
-    );
 
     // Update project details
     project.title = updateProjectDto.title || project.title;
