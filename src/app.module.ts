@@ -4,7 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
-import { TestLoginController } from './test-login/test-login.controller';
+import { AuthModule } from './auth/auth.module';
 import { User } from './users/entities/user.entity';
 import { ProjectsModule } from './projects/projects.module';
 import { Project } from './projects/entities/project.entity';
@@ -32,11 +32,12 @@ import { Task } from './tasks/entities/task.entity';
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
     UsersModule,
     ProjectsModule,
     TasksModule,
   ],
-  controllers: [AppController, TestLoginController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
