@@ -5,13 +5,15 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { ChangelogsService } from './changelogs.service';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { SingleResponseDto } from 'src/single-response.dto';
 import { CreateChangeDto } from './dto/changelog.dto';
 import { UpdateChangeDto } from './dto/changelog.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('changelogs')
 export class ChangelogsController {
@@ -31,8 +33,10 @@ export class ChangelogsController {
           "remark": "remarks1"
         }
     */
+  @UseGuards(JwtAuthGuard)
   @Post('create')
   @ApiResponse({ status: 201, type: SingleResponseDto })
+  @ApiBearerAuth()
   async create(
     @Body(ValidationPipe) createChangeDto: CreateChangeDto,
   ): Promise<SingleResponseDto> {
@@ -47,8 +51,10 @@ export class ChangelogsController {
     Returns:
       "data": { / task list with all fields / }
   */
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiResponse({ status: 201, type: SingleResponseDto })
+  @ApiBearerAuth()
   async listAll(): Promise<SingleResponseDto> {
     const changelogs = await this.changelogsService.findAll();
 
@@ -62,8 +68,10 @@ export class ChangelogsController {
       Returns:
         "data": { / task with all fields / }
     */
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @Get('get_change')
+  @ApiBearerAuth()
   async getChange(@Query('id') id: number) {
     // Fetch changelog by ID. Uses +id to convert string to number
     const changelog = await this.changelogsService.findOne(+id);
@@ -80,8 +88,10 @@ export class ChangelogsController {
       Returns:
         "data": { / task with some fields / }
     */
+  @UseGuards(JwtAuthGuard)
   @Patch('update_task')
   @ApiResponse({ status: 200, type: SingleResponseDto })
+  @ApiBearerAuth()
   async updateProject(@Body() updateChangeDto: UpdateChangeDto) {
     const project = await this.changelogsService.update(updateChangeDto);
 

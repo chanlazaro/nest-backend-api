@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -21,10 +21,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.userService.findOne(payload.sub);
 
     if (typeof user !== 'string') {
-      Logger.debug('user found' + user.username);
+      Logger.debug('user found ' + user.username);
+      return payload;
     } else {
-      Logger.debug('User not found in strategy');
+      throw new UnauthorizedException('User not found');
     }
-    return user;
   }
 }

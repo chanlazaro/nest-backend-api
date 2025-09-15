@@ -8,10 +8,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChangelogsController } from './changelogs/changelogs.controller';
 import { ChangelogsService } from './changelogs/changelogs.service';
 import { Changelog } from './entities/changelog.entity';
+import { ProjectsService } from 'src/projects/projects.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Project, User, Task, Changelog])],
   controllers: [TasksController, ChangelogsController],
-  providers: [TasksService, ChangelogsService],
+  providers: [TasksService, ChangelogsService, ProjectsService],
 })
 export class TasksModule {}

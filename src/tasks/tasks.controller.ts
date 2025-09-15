@@ -6,12 +6,15 @@ import {
   Patch,
   ValidationPipe,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { SingleResponseDto } from 'src/single-response.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('tasks')
 export class TasksController {
@@ -25,12 +28,15 @@ export class TasksController {
     Returns:
       "data": { description: 'Project created successfully' }
   */
+  @UseGuards(JwtAuthGuard)
   @Post('create')
   @ApiResponse({ status: 201, type: SingleResponseDto })
+  @ApiBearerAuth()
   async create(
     @Body(ValidationPipe) createTaskDto: CreateTaskDto,
+    @Request() req,
   ): Promise<SingleResponseDto> {
-    const task = await this.tasksService.create(createTaskDto);
+    const task = await this.tasksService.create(createTaskDto, req);
 
     return new SingleResponseDto(task);
   }
@@ -41,8 +47,10 @@ export class TasksController {
     Returns:
       "data": { / task list with all fields / }
   */
+  @UseGuards(JwtAuthGuard)
   @Get()
   @ApiResponse({ status: 200, type: SingleResponseDto })
+  @ApiBearerAuth()
   async taskList(): Promise<SingleResponseDto> {
     const tasks = await this.tasksService.findAll();
 
@@ -56,8 +64,10 @@ export class TasksController {
     Returns:
       "data": { / task with all fields / }
   */
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @Get('get_task')
+  @ApiBearerAuth()
   async getTask(@Query('id') id: number) {
     // Fetch task by ID. Uses +id to convert string to number
     const task = await this.tasksService.findOne(+id);
@@ -74,10 +84,12 @@ export class TasksController {
     Returns:
       "data": { / task with some fields / }
   */
+  @UseGuards(JwtAuthGuard)
   @Patch('update_task')
   @ApiResponse({ status: 200, type: SingleResponseDto })
-  async updateProject(@Body() updateTaskDto: UpdateTaskDto) {
-    const project = await this.tasksService.update(updateTaskDto);
+  @ApiBearerAuth()
+  async updateProject(@Body() updateTaskDto: UpdateTaskDto, @Request() req) {
+    const project = await this.tasksService.update(updateTaskDto, req);
 
     // Format the data as { data: [...] }
     return new SingleResponseDto(project);

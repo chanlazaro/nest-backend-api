@@ -18,7 +18,7 @@ export class ProjectsService {
     // find if user exists to fetch the user id
     const userExists = await this.userRepository.findOne({
       select: ['id', 'username'],
-      where: [{ username: createProjectDto.user_id }],
+      where: [{ id: Number(createProjectDto.user_id) }],
     });
 
     if (!userExists) {

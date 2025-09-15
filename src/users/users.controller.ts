@@ -8,12 +8,17 @@ import {
   ClassSerializerInterceptor,
   Query,
   Patch,
+  UseGuards,
+  Request,
+  Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SingleResponseDto } from 'src/single-response.dto';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -43,6 +48,8 @@ export class UsersController {
     Note:
       - Uses ClassSerializerInterceptor to exclude sensitive fields like password
    */
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiResponse({ status: 200, type: SingleResponseDto })
@@ -62,6 +69,8 @@ export class UsersController {
     Note:
       - Uses ClassSerializerInterceptor to exclude sensitive fields like password
    */
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @Get('get_user')
@@ -82,9 +91,20 @@ export class UsersController {
     Note:
       - Uses ClassSerializerInterceptor to exclude sensitive fields like password
    */
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch('update_user')
   @ApiResponse({ status: 200, type: SingleResponseDto })
-  async updateUser(@Body() updateUserDto: UpdateUserDto) {
+  async updateUser(@Body() updateUserDto: UpdateUserDto, @Request() req) {
+    /* Validate if the user logged in is same as the user that will be modified
+      req.user.username = username from the token
+      updateUserDto.username = username from the request itself
+    */
+    if (req.user.username != updateUserDto.username) {
+      throw new UnauthorizedException('No Access');
+    }
+    Logger.debug(req.user);
+
     const users = await this.usersService.update(updateUserDto);
 
     // Format the data as { data: [...] }

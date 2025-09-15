@@ -8,6 +8,8 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Query,
+  Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
@@ -15,7 +17,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { SingleResponseDto } from 'src/single-response.dto';
 import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('projects')
 export class ProjectsController {
@@ -29,13 +31,21 @@ export class ProjectsController {
     Returns:
       "data": { description: 'Project created successfully' }
   */
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post('create')
   @ApiResponse({ status: 201, type: SingleResponseDto })
   async create(
     @Body(ValidationPipe) projDetails: CreateProjectDto,
+    @Request() req,
   ): Promise<SingleResponseDto> {
+    /* Validate if the user logged in is same as the user that the project will be created
+        req.user.sub = user_id from the JWT payload
+        projDetails.user_id = user_id from the request itself
+      */
+    if (req.user.sub != projDetails.user_id) {
+      throw new UnauthorizedException('No Access');
+    }
     const project = await this.projectsService.create(projDetails);
 
     return new SingleResponseDto(project);
@@ -49,7 +59,7 @@ export class ProjectsController {
     Notes:
       - Uses ClassSerializerInterceptor to exclude fields marked with @Exclude() in the entity
   */
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get()
   @ApiResponse({ status: 200, type: SingleResponseDto })
@@ -70,7 +80,7 @@ export class ProjectsController {
     Notes:
       - Uses ClassSerializerInterceptor to exclude fields marked with @Exclude() in the entity
   */
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: 200, type: SingleResponseDto })
@@ -89,11 +99,21 @@ export class ProjectsController {
     Returns:
       "data": { / project fields / } 
   */
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch('update_project')
   @ApiResponse({ status: 200, type: SingleResponseDto })
-  async updateProject(@Body() updateProjectDto: UpdateProjectDto) {
+  async updateProject(
+    @Body() updateProjectDto: UpdateProjectDto,
+    @Request() req,
+  ) {
+    /* Validate if the user logged in is same as the user that modify the project
+        req.user.sub = user_id from the JWT payload
+        projDetails.user_id = user_id from the request itself
+      */
+    if (req.user.sub != updateProjectDto.user_id) {
+      throw new UnauthorizedException('No Access');
+    }
     const project = await this.projectsService.update(updateProjectDto);
 
     // Format the data as { data: [...] }

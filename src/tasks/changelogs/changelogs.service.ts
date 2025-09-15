@@ -26,6 +26,8 @@ export class ChangelogsService {
       return 'Task does not exist';
     } else if (taskExists.status != createChangeDto.old_status) {
       return 'Old status does not match current task status';
+    } else if (taskExists.status == createChangeDto.new_status) {
+      return 'Old status and new status are the same';
     }
 
     // Create new task

@@ -11,7 +11,7 @@ import { SingleResponseDto } from 'src/single-response.dto';
 import { AuthUserDto } from 'src/users/dto/auth-user.dto';
 import { AuthService } from './auth.service';
 import type { Response } from 'express';
-import { AuthGuard } from './guards/auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller()
 export class AuthController {
@@ -27,7 +27,7 @@ export class AuthController {
     return new SingleResponseDto(user);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post('logout')
   logout(@Res() res: Response) {

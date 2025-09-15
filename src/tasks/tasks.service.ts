@@ -1,28 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Project } from 'src/projects/entities/project.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
+import { Request } from 'express';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Project) private projectRepository: Repository<Project>,
-
     @InjectRepository(Task) private taskRepository: Repository<Task>,
   ) {}
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto, req: Request) {
+    const tokenData = req.user as any; // TypeScript will assume 'tokenData' is defined
     // find if project exists to fetch the project id
     const projectExists = await this.projectRepository.findOne({
-      select: ['id', 'title'],
+      select: ['id', 'title', 'user_id'],
       where: [{ id: createTaskDto.project_id }],
     });
 
     if (!projectExists) {
       return 'Project does not exist';
+    }
+
+    /* Validate if the user logged in is same as the user that on the project
+      req.user.sub = user_id from the token
+      projectExists.id = user_id from the project data fetched
+    */
+    if (tokenData.sub != projectExists.user_id) {
+      throw new UnauthorizedException('No Access');
     }
 
     // Create new task
@@ -40,7 +49,7 @@ export class TasksService {
       title: savedTask.title,
       status: savedTask.status,
       contents: savedTask.contents,
-      project_id: savedTask.id,
+      project_id: savedTask.project_id,
     };
   }
 
@@ -56,7 +65,8 @@ export class TasksService {
     return task;
   }
 
-  async update(updateTaskDto: UpdateTaskDto) {
+  async update(updateTaskDto: UpdateTaskDto, req: Request) {
+    const tokenData = req.user as any; // TypeScript will assume 'tokenData' is defined
     // Find task by id
     const task = await this.taskRepository.findOne({
       where: { id: updateTaskDto.id },
@@ -66,7 +76,25 @@ export class TasksService {
       return 'Task not found';
     }
 
-    // Update project details
+    // fetch project to get the userID for authorization check
+    const projectExists = await this.projectRepository.findOne({
+      select: ['id', 'title', 'user_id'],
+      where: [{ id: task.project_id }],
+    });
+
+    if (!projectExists) {
+      return 'Project does not exist';
+    }
+
+    /* Validate if the user logged in is same as the user that on the project
+      req.user.sub = user_id from the token
+      projectExists.id = user_id from the project data fetched
+    */
+    if (tokenData.sub != projectExists.user_id) {
+      throw new UnauthorizedException('No Access');
+    }
+
+    // Update task details
     task.title = updateTaskDto.title || task.title;
     task.contents = updateTaskDto.contents || task.contents;
     task.status = updateTaskDto.status || task.status;

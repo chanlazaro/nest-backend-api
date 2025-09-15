@@ -19,7 +19,7 @@ export class CreateTaskDto {
 
   @IsNotEmpty()
   @IsEnum(TaskStatus)
-  @ApiProperty({ example: 'TODO', enum: TaskStatus })
+  @ApiProperty({ example: 'Todo', enum: TaskStatus })
   status: string;
 
   @IsNotEmpty()
