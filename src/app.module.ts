@@ -10,6 +10,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { Project } from './projects/entities/project.entity';
 import { TasksModule } from './tasks/tasks.module';
 import { Task } from './tasks/entities/task.entity';
+import { Changelog } from './tasks/entities/changelog.entity';
 
 @Module({
   imports: [
@@ -28,8 +29,8 @@ import { Task } from './tasks/entities/task.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Project, Task],
-        synchronize: true,
+        entities: [User, Project, Task, Changelog],
+        synchronize: true, //set to automaticallly create/update tables
         logging: ['query', 'error', 'schema'],
       }),
       inject: [ConfigService],
