@@ -8,12 +8,14 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { SingleResponseDto } from 'src/single-response.dto';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('projects')
 export class ProjectsController {
@@ -27,6 +29,8 @@ export class ProjectsController {
     Returns:
       "data": { description: 'Project created successfully' }
   */
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Post('create')
   @ApiResponse({ status: 201, type: SingleResponseDto })
   async create(
@@ -45,6 +49,8 @@ export class ProjectsController {
     Notes:
       - Uses ClassSerializerInterceptor to exclude fields marked with @Exclude() in the entity
   */
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Get()
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @UseInterceptors(ClassSerializerInterceptor)
@@ -64,6 +70,8 @@ export class ProjectsController {
     Notes:
       - Uses ClassSerializerInterceptor to exclude fields marked with @Exclude() in the entity
   */
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @Get('get_project')
@@ -81,6 +89,8 @@ export class ProjectsController {
     Returns:
       "data": { / project fields / } 
   */
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   @Patch('update_project')
   @ApiResponse({ status: 200, type: SingleResponseDto })
   async updateProject(@Body() updateProjectDto: UpdateProjectDto) {

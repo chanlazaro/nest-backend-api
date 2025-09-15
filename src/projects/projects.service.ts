@@ -66,19 +66,18 @@ export class ProjectsService {
   }
 
   async update(updateProjectDto: UpdateProjectDto) {
-    // Find user by username
+    // Find user by user_id
     const user = await this.userRepository.findOne({
-      select: ['id', 'username'],
-      where: { username: updateProjectDto.user_id },
+      where: { id: Number(updateProjectDto.user_id) },
     });
 
     if (!user) {
       return 'User not found';
     }
 
-    // Find project by user id and project title
+    // Find project by project id
     const project = await this.projectRepository.findOne({
-      where: { user_id: user.id, title: updateProjectDto.title },
+      where: { id: updateProjectDto.project_id, user_id: user.id },
     });
 
     // If project not found, throw error
