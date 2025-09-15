@@ -47,6 +47,14 @@ $ npm install
   - MySQL connection for NestJS
 - [@nestjs/jwt](https://github.com/nestjs/jwt)
   - JWT utilities module for Nest based on the [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) package.
+- [@nestjs/passport](https://github.com/nestjs/passport)
+  - Passport utilities for NestJS
+- [passport](https://github.com/jaredhanson/passport)
+  - Authentication middleware for Node.js
+- [passport-jwt](https://github.com/mikenicholson/passport-jwt)
+  - Strategy for authenticating JWT (JSON Web Tokens)
+- [@types/passport-jwt](https://github.com/DefinitelyTyped/DefinitelyTyped)
+  - Type definitions for passport-jwt
 
 ## Compile and run the project
 
