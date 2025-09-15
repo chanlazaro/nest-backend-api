@@ -4,11 +4,13 @@ import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { AuthUserDto } from 'src/users/dto/auth-user.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private JwtService: JwtService,
   ) {}
 
   async validateUser(userCreds: AuthUserDto) {
@@ -27,9 +29,19 @@ export class AuthService {
     }
 
     Logger.debug('Password match for user: ' + user.username);
+    // If password matches, generate JWT token
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+    };
+    const token = this.JwtService.sign(payload);
+
     // Remove password as return object and disable eslint rule for unused vars
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = user;
-    return result;
+    // add token to result
+    const userAccess = { ...result, token };
+    return userAccess;
   }
 }

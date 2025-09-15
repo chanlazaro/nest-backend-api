@@ -45,6 +45,8 @@ $ npm install
   - For the password encryption and decryption
 - [@nestjs/typeorm](https://github.com/nestjs/typeorm) typeorm mysql2
   - MySQL connection for NestJS
+- [@nestjs/jwt](https://github.com/nestjs/jwt)
+  - JWT utilities module for Nest based on the [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) package.
 
 ## Compile and run the project
 
