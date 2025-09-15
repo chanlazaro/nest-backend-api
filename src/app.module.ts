@@ -14,7 +14,9 @@ import { Task } from './tasks/entities/task.entity';
 @Module({
   imports: [
     // Load environment variables from .env file
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
 
     // TypeORM for MySQL Database connection
     TypeOrmModule.forRootAsync({
