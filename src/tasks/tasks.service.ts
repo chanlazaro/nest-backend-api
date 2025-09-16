@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Project } from 'src/projects/entities/project.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 import { Request } from 'express';
 
@@ -12,6 +12,7 @@ export class TasksService {
   constructor(
     @InjectRepository(Project) private projectRepository: Repository<Project>,
     @InjectRepository(Task) private taskRepository: Repository<Task>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createTaskDto: CreateTaskDto, req: Request) {
@@ -35,12 +36,12 @@ export class TasksService {
     }
 
     // Create new task
-    const newTask = {
+    const newTask = this.taskRepository.create({
       project_id: projectExists.id,
       title: createTaskDto.title,
       contents: createTaskDto.contents,
       status: createTaskDto.status,
-    };
+    });
 
     // Save task to the database and return success message
     const savedTask = await this.taskRepository.save(newTask);
@@ -109,5 +110,64 @@ export class TasksService {
       contents: savedTask.contents,
       project_id: savedTask.project_id,
     };
+  }
+
+  // Function to seed users to database
+  async seed() {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const task1 = this.taskRepository.create({
+        project_id: 1,
+        title: 'Task for project 1',
+        contents: 'sample content',
+        status: 'Todo',
+      });
+      await queryRunner.manager.save(task1);
+
+      const task2 = this.taskRepository.create({
+        project_id: 2,
+        title: 'Task for project 2',
+        contents: 'sample content',
+        status: 'Todo',
+      });
+      await queryRunner.manager.save(task2);
+
+      const task3 = this.taskRepository.create({
+        project_id: 3,
+        title: 'Task for project 3',
+        contents: 'sample content',
+        status: 'Done',
+      });
+      await queryRunner.manager.save(task3);
+
+      const task4 = this.taskRepository.create({
+        project_id: 2,
+        title: 'another task for project 2',
+        contents: 'sample content',
+        status: 'Todo',
+      });
+      await queryRunner.manager.save(task4);
+
+      const task5 = this.taskRepository.create({
+        project_id: 1,
+        title: 'another task for project 1',
+        contents: 'sample content',
+        status: 'In Progress',
+      });
+      await queryRunner.manager.save(task5);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      // since we have errors lets rollback the changes we made
+      Logger.log(err);
+      await queryRunner.rollbackTransaction();
+      return 'TRANSACTION ROLLBACKED Reason: ' + err;
+    } finally {
+      // you need to release a queryRunner which was manually instantiated
+      await queryRunner.release();
+    }
+
+    return 'Tasks saved!';
   }
 }

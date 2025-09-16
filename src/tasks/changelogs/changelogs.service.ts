@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Changelog } from '../entities/changelog.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../entities/task.entity';
 import { CreateChangeDto } from './dto/changelog.dto';
@@ -13,6 +13,7 @@ export class ChangelogsService {
 
     @InjectRepository(Changelog)
     private changeRepository: Repository<Changelog>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createChangeDto: CreateChangeDto) {
@@ -30,16 +31,16 @@ export class ChangelogsService {
       return 'Old status and new status are the same';
     }
 
-    // Create new task
-    const newTask = {
+    // Create new changelog
+    const newLog = this.changeRepository.create({
       task_id: taskExists.id,
       old_status: taskExists.status,
       new_status: createChangeDto.new_status,
       remarks: createChangeDto.remarks,
-    };
+    });
 
-    // Save task to the database and return success message
-    const savedTask = await this.changeRepository.save(newTask);
+    // Save changelog to the database and return success message
+    const savedTask = await this.changeRepository.save(newLog);
     return {
       changelog_id: savedTask.id,
       task_id: savedTask.id,
@@ -85,5 +86,48 @@ export class ChangelogsService {
       new_status: savedChange.new_status,
       remarks: savedChange.remarks,
     };
+  }
+
+  // Function to seed users to database
+  async seed() {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const log1 = this.changeRepository.create({
+        task_id: 1,
+        old_status: 'Todo',
+        new_status: 'In Progress',
+        remarks: 'remarks',
+      });
+      await queryRunner.manager.save(log1);
+
+      const log2 = this.changeRepository.create({
+        task_id: 2,
+        old_status: 'Todo',
+        new_status: 'Done',
+        remarks: 'remarks',
+      });
+      await queryRunner.manager.save(log2);
+
+      const log3 = this.changeRepository.create({
+        task_id: 3,
+        old_status: 'Done',
+        new_status: 'In Progress',
+        remarks: 'remarks',
+      });
+      await queryRunner.manager.save(log3);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      // since we have errors lets rollback the changes we made
+      Logger.error(err);
+      await queryRunner.rollbackTransaction();
+      return 'TRANSACTION ROLLBACKED Reason: ' + err;
+    } finally {
+      // you need to release a queryRunner which was manually instantiated
+      await queryRunner.release();
+    }
+
+    return 'Tasks saved!';
   }
 }

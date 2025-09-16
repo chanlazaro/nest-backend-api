@@ -14,5 +14,6 @@ import { ProjectsService } from 'src/projects/projects.service';
   imports: [TypeOrmModule.forFeature([Project, User, Task, Changelog])],
   controllers: [TasksController, ChangelogsController],
   providers: [TasksService, ChangelogsService, ProjectsService],
+  exports: [TasksService, ChangelogsService],
 })
 export class TasksModule {}

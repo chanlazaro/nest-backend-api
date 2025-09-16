@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { Project } from './entities/project.entity';
@@ -10,8 +10,8 @@ import { User } from 'src/users/entities/user.entity';
 export class ProjectsService {
   constructor(
     @InjectRepository(Project) private projectRepository: Repository<Project>,
-
     @InjectRepository(User) private userRepository: Repository<User>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createProjectDto: CreateProjectDto) {
@@ -98,5 +98,45 @@ export class ProjectsService {
       description: savedProject.description,
       user_id: savedProject.user_id,
     };
+  }
+
+  // Function to seed projects to database
+  async seed() {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+    try {
+      const project1 = this.projectRepository.create({
+        user_id: 1,
+        title: 'title for user 1',
+        description: 'lorem ipsum',
+      });
+      await queryRunner.manager.save(project1);
+
+      const project2 = this.projectRepository.create({
+        user_id: 2,
+        title: 'title for user 2',
+        description: 'lorem ipsum',
+      });
+      await queryRunner.manager.save(project2);
+
+      const project3 = this.projectRepository.create({
+        user_id: 3,
+        title: 'title for user 3',
+        description: 'lorem ipsum',
+      });
+      await queryRunner.manager.save(project3);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      // since we have errors lets rollback the changes we made
+      Logger.log(err);
+      await queryRunner.rollbackTransaction();
+      return 'TRANSACTION ROLLBACKED Reason: ' + err;
+    } finally {
+      // you need to release a queryRunner which was manually instantiated
+      await queryRunner.release();
+    }
+
+    return 'Projects saved!';
   }
 }

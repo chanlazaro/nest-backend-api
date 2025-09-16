@@ -5,12 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { User } from './users/entities/user.entity';
 import { ProjectsModule } from './projects/projects.module';
-import { Project } from './projects/entities/project.entity';
 import { TasksModule } from './tasks/tasks.module';
-import { Task } from './tasks/entities/task.entity';
-import { Changelog } from './tasks/entities/changelog.entity';
 
 @Module({
   imports: [
@@ -29,7 +25,7 @@ import { Changelog } from './tasks/entities/changelog.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
-        entities: [User, Project, Task, Changelog],
+        autoLoadEntities: true,
         synchronize: true, //set to automaticallly create/update tables
         logging: ['query', 'error', 'schema'],
       }),
