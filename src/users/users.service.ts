@@ -132,7 +132,7 @@ export class UsersService {
       await queryRunner.commitTransaction();
     } catch (err) {
       // since we have errors lets rollback the changes we made
-      Logger.log(err);
+      Logger.error(err);
       await queryRunner.rollbackTransaction();
       return 'TRANSACTION ROLLBACKED Reason: ' + err;
     } finally {

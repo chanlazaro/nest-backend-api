@@ -101,7 +101,7 @@ export class TasksService {
     task.status = updateTaskDto.status || task.status;
     task.updated_at = new Date(); // Update the updated_at timestamp
 
-    // Save updated user to the database
+    // Save updated task to the database
     const savedTask = await this.taskRepository.save(task);
     return {
       task_id: savedTask.id,
@@ -112,7 +112,7 @@ export class TasksService {
     };
   }
 
-  // Function to seed users to database
+  // Function to seed tasks to database
   async seed() {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
@@ -160,7 +160,7 @@ export class TasksService {
       await queryRunner.commitTransaction();
     } catch (err) {
       // since we have errors lets rollback the changes we made
-      Logger.log(err);
+      Logger.error(err);
       await queryRunner.rollbackTransaction();
       return 'TRANSACTION ROLLBACKED Reason: ' + err;
     } finally {

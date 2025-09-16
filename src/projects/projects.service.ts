@@ -43,7 +43,7 @@ export class ProjectsService {
       description: createProjectDto.description,
     });
 
-    // Save user to the database and return success message
+    // Save projeect to the database and return success message
     const savedProject = await this.projectRepository.save(newProject);
     return {
       project_id: savedProject.id,
@@ -90,7 +90,7 @@ export class ProjectsService {
     project.description = updateProjectDto.description || project.description;
     project.updated_at = new Date(); // Update the updated_at timestamp
 
-    // Save updated user to the database
+    // Save updated project to the database
     const savedProject = await this.projectRepository.save(project);
     return {
       project_id: savedProject.id,

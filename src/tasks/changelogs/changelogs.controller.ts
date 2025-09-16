@@ -19,11 +19,11 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 export class ChangelogsController {
   constructor(private readonly changelogsService: ChangelogsService) {}
 
-  /* Create task
+  /* Create changelog
       URL: /changelogs/create
       Method: POST
       Parameter:
-        createTaskDto: task_id, old_status, new_status, remarks
+        createChangeDto: task_id, old_status, new_status, remarks
       Returns:
         "data": { 
           "changeLog_id": 180,
@@ -63,7 +63,7 @@ export class ChangelogsController {
   }
 
   /* View a task
-      URL: /tasks/get_task?id=1
+      URL: /changelogs/get_change?id=1
       Method: GET
       Returns:
         "data": { / task with all fields / }
@@ -80,16 +80,16 @@ export class ChangelogsController {
     return new SingleResponseDto(changelog);
   }
 
-  /* Update task
-      URL: /tasks/update_task
+  /* Update changelog
+      URL: /changelogs/update_changelog
       Method: PATCH
       Parameter:
-        updateTaskDto: id, title, status, contents
+        updateChangeDto: change_id, old_status, new_status, remarks
       Returns:
-        "data": { / task with some fields / }
+        "data": { / changelog with some fields / }
     */
   @UseGuards(JwtAuthGuard)
-  @Patch('update_task')
+  @Patch('update_log')
   @ApiResponse({ status: 200, type: SingleResponseDto })
   @ApiBearerAuth()
   async updateProject(@Body() updateChangeDto: UpdateChangeDto) {

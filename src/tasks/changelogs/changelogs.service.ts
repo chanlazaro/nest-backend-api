@@ -78,7 +78,7 @@ export class ChangelogsService {
     changelog.remarks = updateChangeDto.remarks || changelog.remarks;
     changelog.updated_at = new Date(); // Update the updated_at timestamp
 
-    // Save updated user to the database
+    // Save updated changelog to the database
     const savedChange = await this.changeRepository.save(changelog);
     return {
       task_id: changelog.task_id,
@@ -88,7 +88,7 @@ export class ChangelogsService {
     };
   }
 
-  // Function to seed users to database
+  // Function to seed changelogs to database
   async seed() {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
